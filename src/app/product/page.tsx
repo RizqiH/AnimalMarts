@@ -49,139 +49,6 @@ const Product = () => {
   const categories = ["Anabul Animals", "Bird Animals", "Livestock", "Pakan"];
   const API_BASE_URL = "http://localhost:5000";
 
-  // Default products untuk fallback jika API tidak tersedia
-  const defaultProducts: Product[] = [
-    {
-      id: 1,
-      name: "Persian Cat",
-      category: "Anabul Animals",
-      price: 2500000,
-      rating: 4.8,
-      reviews: 124,
-      image: "../assets/image/9.jpg",
-      bestseller: true,
-    },
-    {
-      id: 2,
-      name: "Golden Retriever Puppy",
-      category: "Anabul Animals",
-      price: 3500000,
-      rating: 4.9,
-      reviews: 89,
-      image: "../assets/image/11.jpg",
-    },
-    {
-      id: 3,
-      name: "British Shorthair",
-      category: "Anabul Animals",
-      price: 2800000,
-      rating: 4.7,
-      reviews: 156,
-      image: "../assets/image/10.jpg",
-    },
-    {
-      id: 4,
-      name: "Canary Bird Yellow",
-      category: "Bird Animals",
-      price: 250000,
-      rating: 4.6,
-      reviews: 78,
-      image: "../assets/image/12.jpg",
-      bestseller: true,
-    },
-    {
-      id: 5,
-      name: "Lovebird Lutino",
-      category: "Bird Animals",
-      price: 350000,
-      rating: 4.5,
-      reviews: 92,
-      image: "../assets/image/13.jpg",
-    },
-    {
-      id: 6,
-      name: "Cockatiel Grey",
-      category: "Bird Animals",
-      price: 450000,
-      rating: 4.7,
-      reviews: 67,
-      image: "../assets/image/14.jpg",
-    },
-    {
-      id: 7,
-      name: "Sapi",
-      category: "Livestock",
-      price: 15000000,
-      rating: 4.8,
-      reviews: 23,
-      image: "../assets/image/8.jpg",
-    },
-    {
-      id: 8,
-      name: "Sapi 8 kg",
-      category: "Livestock",
-      price: 3500000,
-      rating: 4.6,
-      reviews: 34,
-      image: "../assets/image/7.jpg",
-    },
-    {
-      id: 9,
-      name: "Intune",
-      category: "Pakan",
-      price: 2500000,
-      rating: 4.7,
-      reviews: 45,
-      image: "../assets/image/1.jpg",
-    },
-    {
-      id: 10,
-      name: "Wortel",
-      category: "Pakan",
-      price: 350000,
-      rating: 4.8,
-      reviews: 234,
-      image: "../assets/image/2.jpg",
-      bestseller: true,
-    },
-    {
-      id: 11,
-      name: "Whiskas",
-      category: "Pakan",
-      price: 125000,
-      rating: 4.5,
-      reviews: 156,
-      image: "../assets/image/3.jpg",
-    },
-    {
-      id: 12,
-      name: "Dog Food",
-      category: "Pakan",
-      price: 275000,
-      rating: 4.6,
-      reviews: 89,
-      image: "../assets/image/4.jpg",
-    },
-    {
-      id: 13,
-      name: "Topsong Pellets 10kg",
-      category: "Pakan",
-      price: 425000,
-      rating: 4.9,
-      reviews: 198,
-      image: "../assets/image/5.jpg",
-    },
-    {
-      id: 14,
-      name: "Dedek",
-      category: "Pakan",
-      price: 185000,
-      rating: 4.4,
-      reviews: 112,
-      image: "../assets/image/6.jpg",
-    },
-  ];
-
   // Fetch products dari API saat component mount
   useEffect(() => {
     fetchProducts();
@@ -202,14 +69,15 @@ const Product = () => {
           console.log("Products loaded from API:", data.data.products);
         } else {
           console.error("Data from API is not an array:", data.data.products);
+          setProducts([]);
         }
       } else {
-        console.log("API not available, using default products");
-        setProducts(defaultProducts);
+        console.log("API not available");
+        setProducts([]);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-      setProducts(defaultProducts);
+      setProducts([]);
     } finally {
       setIsLoading(false);
     }
@@ -500,7 +368,7 @@ const Product = () => {
             {sortedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">
-                  Tidak ada produk ditemukan
+                  {isLoading ? "Memuat produk..." : "Tidak ada produk ditemukan"}
                 </p>
               </div>
             ) : (
