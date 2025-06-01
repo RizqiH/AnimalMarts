@@ -18,7 +18,7 @@ import { useCart } from "../context/CartContext";
 
 // API Base URL - sesuaikan dengan backend Anda
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://backend-animalmart.vercel.app/api";
 
 const AnimalMartCheckout = () => {
   const {

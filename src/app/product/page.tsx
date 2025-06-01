@@ -47,7 +47,7 @@ const Product = () => {
   });
 
   const categories = ["Anabul Animals", "Bird Animals", "Livestock", "Pakan"];
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "https://backend-animalmart.vercel.app";
 
   // Fetch products dari API saat component mount
   useEffect(() => {

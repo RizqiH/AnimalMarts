@@ -84,7 +84,7 @@ const AdminOrdersPage: React.FC = () => {
     try {
       // Gunakan environment variable untuk API URL
       const API_URL =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        process.env.NEXT_PUBLIC_API_URL || "https://backend-animalmart.vercel.app";
       const response = await fetch(`${API_URL}/api/orders?limit=100`);
 
       if (!response.ok) {
