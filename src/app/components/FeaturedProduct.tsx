@@ -22,7 +22,7 @@ const FeaturedProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE_URL = "http://localhost:5000";
+  const API_BASE_URL = "https://backend-animalmart.vercel.app";
 
   // Default products untuk fallback jika API tidak tersedia
   const defaultProducts: Product[] = [
