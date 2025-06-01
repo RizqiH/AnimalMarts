@@ -348,7 +348,8 @@ const Product = () => {
       handleSuccessfulSubmit();
     } catch (error) {
       console.error("Submit error:", error);
-      alert(`Gagal menambahkan produk: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      alert(`Gagal menambahkan produk: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
