@@ -47,7 +47,7 @@ const Product = () => {
     bestseller: false,
   });
 
-  const categories = ["Anabul Animals", "Bird Animals", "Livestock", "Pakan"];
+  const categories = ["Hewan Peliharaan", "ikan", "Hewan Ternak", "Pakan"];
   const API_BASE_URL = "https://backend-animalmart.vercel.app";
 
   // Fetch products dari API saat component mount
