@@ -22,8 +22,7 @@ const Footer = () => {
                 Animal<span className="text-orange-400">Mart</span>
               </h3>
               <p className="text-black leading-relaxed">
-                Toko online terpercaya untuk semua kebutuhan hewan peliharaan Anda. 
-                Kami menyediakan produk berkualitas tinggi dengan harga terjangkau.
+              Toko online terpercaya untuk membeli hewan peliharaan berkualitas. Temukan berbagai pilihan hewan peliharaan yang sehat, lengkap dengan kebutuhan lainnya untuk hewan kesayangan, dengan harga terjangkau.
               </p>
             </div>
           </div>

@@ -8,14 +8,15 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Temukan Gaya <br />
+            Temukan Hewan <br />
               <span className="text-green-600">
-                Hemat Waktu,Lengkapi kebutuhan
+              Peliharaan Terbaik untuk Anda 
+
               </span>{" "}
-              Terbaik
+              di AnimalMart!
             </h1>
             <p className="text-lg text-gray-600 mb-8">
-            Ekspresikan gaya terbaik untuk hewan peliharaan Anda dengan koleksi makanan hewan unggulan dari petstore kami. Kami menyediakan pilihan produk berkualitas yang akan memberikan nutrisi terbaik untuk pets kesayangan Anda.
+            Cari hewan peliharaan yang cocok untuk keluarga Anda di AnimalMart! Kami menyediakan berbagai pilihan hewan peliharaan dengan kualitas terbaik, siap menemani hari-hari Anda. Dapatkan juga pakan dan perlengkapan hewan berkualitas untuk mendukung kesejahteraan hewan kesayangan Anda.
             </p>
             <div className="flex space-x-4">
               <Link href="/product">
