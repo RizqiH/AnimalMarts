@@ -19,12 +19,12 @@ const CategoriesSection = () => {
       link: "/product",
     },
     {
-      name: "Hewan Anabul",
+      name: "Hewan Peliharaan",
       image: "../assets/image/9.jpg",
       link: "/product",
     },
     {
-      name: "Hewan Burung",
+      name: "ikan",
       image: "../assets/image/12.jpg",
       link: "/product",
     },
