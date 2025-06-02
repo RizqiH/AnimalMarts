@@ -25,7 +25,7 @@ const CategoriesSection = () => {
     },
     {
       name: "ikan",
-      image: "../assets/image/12.jpg",
+      image: "../assets/image/111.jpg",
       link: "/product",
     },
   ];
