@@ -61,7 +61,7 @@ const Footer = () => {
                   href="/product" 
                   className="text-black hover:text-green-500 transition-colors"
                 >
-                  Pakan Hewan
+                  Pakan
                 </Link>
               </li>
               <li>
@@ -69,7 +69,7 @@ const Footer = () => {
                   href="/product" 
                   className="text-black hover:text-green-500 transition-colors"
                 >
-                  Hewan Anabul
+                  Hewan Peliharaan
                 </Link>
               </li>
               <li>
@@ -77,7 +77,7 @@ const Footer = () => {
                   href="/product" 
                   className="text-black hover:text-green-500 transition-colors"
                 >
-                  Burung
+                  Ikan
                 </Link>
               </li>
               <li>
