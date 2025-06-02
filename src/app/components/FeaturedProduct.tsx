@@ -284,10 +284,6 @@ const FeaturedProducts = () => {
                   {selectedProduct.description}
                 </p>
               </div>
-              <button className="w-full bg-amber-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Tambah ke Keranjang
-              </button>
             </div>
           </div>
 
