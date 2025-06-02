@@ -15,7 +15,7 @@ const HeroSection = () => {
               Terbaik
             </h1>
             <p className="text-lg text-gray-600 mb-8">
-            Ekspresikan karakter fashion terbaik dari dengan koleksi unggulan kami berikan penampilan untuk pets dan mereka.
+            Ekspresikan gaya terbaik untuk hewan peliharaan Anda dengan koleksi makanan hewan unggulan dari petstore kami. Kami menyediakan pilihan produk berkualitas yang akan memberikan nutrisi terbaik untuk pets kesayangan Anda.
             </p>
             <div className="flex space-x-4">
               <Link href="/product">
