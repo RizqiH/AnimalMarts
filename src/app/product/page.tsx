@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Star, Plus, X, Upload } from "lucide-react";
+import { ShoppingCart, Star, Plus, X, Upload, Trash2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
 interface Product {
@@ -32,6 +32,7 @@ const Product = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
+  const [deletingProductId, setDeletingProductId] = useState<number | null>(null);
 
   // Use cart context
   const { addToCart } = useCart();
@@ -80,6 +81,55 @@ const Product = () => {
       setProducts([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Delete product function
+  const handleDeleteProduct = async (productId: number): Promise<void> => {
+    // Konfirmasi sebelum menghapus
+    if (!window.confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+      return;
+    }
+
+    try {
+      setDeletingProductId(productId);
+
+      const response = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        // Hapus produk dari state lokal
+        setProducts(prevProducts => 
+          prevProducts.filter(product => product.id !== productId)
+        );
+        alert("Produk berhasil dihapus!");
+      } else {
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP Error: ${response.status} ${response.statusText}`,
+        }));
+        
+        console.error("Delete API Error:", errorData);
+        
+        // Jika API gagal, tetap hapus dari state lokal
+        setProducts(prevProducts => 
+          prevProducts.filter(product => product.id !== productId)
+        );
+        alert("Produk dihapus dari tampilan (API mungkin tidak tersedia)");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      
+      // Tetap hapus dari state lokal meski API error
+      setProducts(prevProducts => 
+        prevProducts.filter(product => product.id !== productId)
+      );
+      alert("Produk dihapus dari tampilan (koneksi API bermasalah)");
+    } finally {
+      setDeletingProductId(null);
     }
   };
 
@@ -384,12 +434,33 @@ const Product = () => {
                           Terlaris
                         </div>
                       )}
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        className="hover:cursor-pointer absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow z-10"
-                      >
-                        <ShoppingCart className="w-4 h-4 text-gray-400" />
-                      </button>
+                      
+                      {/* Action buttons container */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+                        {/* Add to cart button */}
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow hover:bg-green-50"
+                          title="Tambah ke keranjang"
+                        >
+                          <ShoppingCart className="w-4 h-4 text-gray-400 hover:text-green-600" />
+                        </button>
+                        
+                        {/* Delete button */}
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          disabled={deletingProductId === product.id}
+                          className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Hapus produk"
+                        >
+                          {deletingProductId === product.id ? (
+                            <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
+                          )}
+                        </button>
+                      </div>
+                      
                       <div className="h-48 flex items-center justify-center">
                         <img
                           src={product.image || "../assets/image/logo.jpg"}
