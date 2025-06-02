@@ -15,8 +15,7 @@ const HeroSection = () => {
               Terbaik
             </h1>
             <p className="text-lg text-gray-600 mb-8">
-              Ekspresikan karakter fashion terbaik dari dengan koleksi unggulan
-              kami berikan penampilan untuk pets dan mereka.
+            Ekspresikan karakter fashion terbaik dari dengan koleksi unggulan kami berikan penampilan untuk pets dan mereka.
             </p>
             <div className="flex space-x-4">
               <Link href="/product">
