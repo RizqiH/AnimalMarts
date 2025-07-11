@@ -13,8 +13,10 @@ import {
   Plus,
   Minus,
   Trash2,
+  Lock,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 // API Base URL - sesuaikan dengan backend Anda
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend-animalmart.vercel.app";
@@ -28,6 +30,8 @@ const AnimalMartCheckout = () => {
     getCartTotal,
     getCartItemsCount,
   } = useCart();
+  
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const [paymentMethods] = useState([
     { id: "dana", name: "DANA", type: "e_wallet", icon: "💳" },
@@ -61,8 +65,20 @@ const AnimalMartCheckout = () => {
     phone: "",
     address: "",
     city: "",
+    province: "",
     postalCode: "",
   });
+
+  // Auto-fill customer info from logged in user
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setCustomerInfo(prev => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -76,6 +92,23 @@ const AnimalMartCheckout = () => {
 
   const formatPrice = (amount: number) => {
     return `Rp ${amount.toLocaleString("id-ID")}`;
+  };
+
+  // Map payment method ID to backend type
+  const getPaymentMethodType = (paymentId: string): string => {
+    const method = paymentMethods.find(m => m.id === paymentId);
+    if (!method) return "cod"; // fallback
+    
+    switch (method.type) {
+      case "e_wallet":
+        return "e_wallet";
+      case "bank_transfer":
+        return "bank_transfer";
+      case "cash":
+        return "cod";
+      default:
+        return "cod";
+    }
   };
 
   const handleQuantityChange = (productId: number, newQuantity: number) => {
@@ -151,8 +184,8 @@ const AnimalMartCheckout = () => {
     setDebugInfo("");
 
     // Basic validation
-    if (!selectedPayment || !customerInfo.name || !customerInfo.email) {
-      setError("Mohon lengkapi semua field yang wajib diisi");
+    if (!selectedPayment || !customerInfo.name || !customerInfo.email || !customerInfo.city || !customerInfo.province || !customerInfo.postalCode || !customerInfo.address) {
+      setError("Mohon lengkapi semua field yang wajib diisi (bertanda *)");
       return;
     }
 
@@ -165,7 +198,8 @@ const AnimalMartCheckout = () => {
 
     try {
       // Prepare order data with enhanced validation and proper image handling
-      const orderData = {
+      // Note: userId will be added by backend from authenticated token
+      const orderData: any = {
         items: cartItems.map((item) => {
           const itemData: any = {
             id: item.id,
@@ -185,17 +219,15 @@ const AnimalMartCheckout = () => {
           name: customerInfo.name.trim(),
           email: customerInfo.email.trim().toLowerCase(),
           phone: customerInfo.phone.trim(),
-          address: customerInfo.address.trim(),
-          city: customerInfo.city.trim(),
-          postalCode: customerInfo.postalCode.trim(),
+          address: {
+            street: customerInfo.address.trim(),
+            city: customerInfo.city.trim(),
+            province: customerInfo.province.trim(),
+            postalCode: customerInfo.postalCode.trim(),
+          },
         },
-        paymentMethod: selectedPayment,
-        shippingCost: Number(shippingCost),
-        totalAmount: Number(totalAmount),
-        finalTotal: Number(finalTotal),
-        notes: "",
-        orderDate: new Date().toISOString(),
-        status: "pending",
+        paymentMethod: getPaymentMethodType(selectedPayment),
+        notes: "", // Empty string is now allowed by backend
       };
 
       // Validate order data
@@ -214,12 +246,19 @@ const AnimalMartCheckout = () => {
       console.log("========================");
 
       // Send to backend with enhanced error handling
+      const token = localStorage.getItem("token");
+      const headers: any = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers,
         body: JSON.stringify(orderData),
       });
 
@@ -323,6 +362,49 @@ const AnimalMartCheckout = () => {
       );
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Memuat...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login required message if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <Lock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Login Diperlukan
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Silakan login terlebih dahulu untuk melanjutkan checkout.
+          </p>
+          <div className="space-y-3">
+            <a
+              href="/login"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors block text-center"
+            >
+              Login Sekarang
+            </a>
+            <a
+              href="/register"
+              className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors block text-center"
+            >
+              Daftar Akun Baru
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Redirect to home if cart is empty and not processing/complete
   if (cartItems.length === 0 && !isProcessing && !orderComplete) {
@@ -454,7 +536,7 @@ const AnimalMartCheckout = () => {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Nama Lengkap *
@@ -493,7 +575,7 @@ const AnimalMartCheckout = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kota
+                  Kota *
                 </label>
                 <input
                   type="text"
@@ -503,16 +585,40 @@ const AnimalMartCheckout = () => {
                   placeholder="Masukkan kota Anda"
                 />
               </div>
-              <div className="md:col-span-2">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Alamat Lengkap
+                  Provinsi *
+                </label>
+                <input
+                  type="text"
+                  value={customerInfo.province}
+                  onChange={(e) => handleInputChange("province", e.target.value)}
+                  className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Masukkan provinsi Anda"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kode Pos *
+                </label>
+                <input
+                  type="text"
+                  value={customerInfo.postalCode}
+                  onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                  className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Masukkan kode pos Anda"
+                />
+              </div>
+              <div className="md:col-span-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Alamat Lengkap *
                 </label>
                 <textarea
                   value={customerInfo.address}
                   onChange={(e) => handleInputChange("address", e.target.value)}
                   rows={3}
                   className="text-black w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Masukkan alamat lengkap Anda"
+                  placeholder="Masukkan alamat lengkap Anda (nama jalan, nomor rumah, RT/RW, dll)"
                 />
               </div>
             </div>
@@ -729,6 +835,10 @@ const AnimalMartCheckout = () => {
                 !selectedPayment ||
                 !customerInfo.name ||
                 !customerInfo.email ||
+                !customerInfo.city ||
+                !customerInfo.province ||
+                !customerInfo.postalCode ||
+                !customerInfo.address ||
                 cartItems.length === 0
               }
               className={`w-full mt-6 py-3 rounded-lg font-semibold transition-all ${
@@ -736,6 +846,10 @@ const AnimalMartCheckout = () => {
                 !selectedPayment ||
                 !customerInfo.name ||
                 !customerInfo.email ||
+                !customerInfo.city ||
+                !customerInfo.province ||
+                !customerInfo.postalCode ||
+                !customerInfo.address ||
                 cartItems.length === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700 active:transform active:scale-95"

@@ -10,6 +10,8 @@ import orderRoutes from "./routes/orderRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
+import authRoutes from "./routes/authRoutes";
+import reviewRoutes from "./routes/reviewRoutes";
 
 const app = express();
 
@@ -54,6 +56,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Error handling middleware
 app.use(notFound);

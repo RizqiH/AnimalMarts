@@ -1,8 +1,9 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
 
 type CartItem = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -13,11 +14,12 @@ type CartItem = {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartItemsCount: () => number;
+  requireLogin: () => boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -34,8 +36,37 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { isAuthenticated } = useAuth();
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('animalmart-cart');
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(parsedCart);
+      } catch (error) {
+        console.error('Error parsing cart from localStorage:', error);
+        localStorage.removeItem('animalmart-cart');
+      }
+    }
+  }, []);
+
+  // Save cart to localStorage whenever cartItems changes
+  useEffect(() => {
+    localStorage.setItem('animalmart-cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const requireLogin = (): boolean => {
+    return isAuthenticated;
+  };
 
   const addToCart = (product: Omit<CartItem, "quantity">) => {
+    if (!isAuthenticated) {
+      alert("Silakan login terlebih dahulu untuk menambahkan produk ke keranjang");
+      return;
+    }
+    
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
@@ -49,13 +80,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.id !== productId),
     );
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
@@ -70,6 +101,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem('animalmart-cart');
   };
 
   const getCartTotal = () => {
@@ -93,6 +125,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         clearCart,
         getCartTotal,
         getCartItemsCount,
+        requireLogin,
       }}
     >
       {children}

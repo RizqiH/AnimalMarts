@@ -9,7 +9,8 @@
     "dev": "ts-node src/server.ts",
     "start": "node src/server.ts",
     "build": "tsc",
-    "create-admin": "node scripts/createAdmin.js"
+    "create-admin": "node scripts/createAdmin.js",
+    "make-admin": "node scripts/makeUserAdmin.js"
   },
   "keywords": [],
   "author": "",

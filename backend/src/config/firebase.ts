@@ -58,6 +58,7 @@ export const COLLECTIONS = {
   ORDERS: "orders",
   CATEGORIES: "categories",
   CARTS: "carts",
+  REVIEWS: "reviews",
 } as const;
 
 export default app;

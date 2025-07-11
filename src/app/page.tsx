@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import HeroSection from "./components/Herosection";
 import CategoriesSection from "./components/CategorieSection";
 import FeaturedProducts from "./components/FeaturedProduct";
+import "./globals.css";
 
 export default function HomePage() {
   useEffect(() => {

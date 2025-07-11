@@ -4,7 +4,7 @@ import { ShoppingCart, Star, Plus, X, Upload, Trash2 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   category: string;
   price: number;
@@ -27,12 +27,12 @@ interface FormData {
 const Product = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("terbaru");
-  const [favorites, setFavorites] = useState(new Set<number>());
+  const [favorites, setFavorites] = useState(new Set<string>());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
-  const [deletingProductId, setDeletingProductId] = useState<number | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
 
   // Use cart context
   const { addToCart } = useCart();
@@ -85,7 +85,7 @@ const Product = () => {
   };
 
   // Delete product function
-  const handleDeleteProduct = async (productId: number): Promise<void> => {
+  const handleDeleteProduct = async (productId: string): Promise<void> => {
     // Konfirmasi sebelum menghapus
     if (!window.confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
       return;
@@ -174,7 +174,7 @@ const Product = () => {
     }
   };
 
-  const toggleFavorite = (productId: number): void => {
+  const toggleFavorite = (productId: string): void => {
     const newFavorites = new Set(favorites);
     if (newFavorites.has(productId)) {
       newFavorites.delete(productId);
@@ -437,15 +437,6 @@ const Product = () => {
                       
                       {/* Action buttons container */}
                       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-                        {/* Add to cart button */}
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow hover:bg-green-50"
-                          title="Tambah ke keranjang"
-                        >
-                          <ShoppingCart className="w-4 h-4 text-gray-400 hover:text-green-600" />
-                        </button>
-                        
                         {/* Delete button */}
                         <button
                           onClick={() => handleDeleteProduct(product.id)}
@@ -483,9 +474,36 @@ const Product = () => {
                         {product.category}
                       </p>
 
-                      <p className="text-lg font-bold text-green-600">
-                        {formatPrice(product.price)}
-                      </p>
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-lg font-bold text-green-600">
+                          {formatPrice(product.price)}
+                        </p>
+                        <div className="flex items-center space-x-1">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                          <span className="text-sm text-gray-600">
+                            {product.rating > 0 ? product.rating.toFixed(1) : "0.0"}
+                          </span>
+                          <span className="text-sm text-gray-400">
+                            ({product.reviews || 0})
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Product actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => window.location.href = `/product/${product.id}`}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Lihat Detail
+                        </button>
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Tambah
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

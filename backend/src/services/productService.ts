@@ -5,10 +5,12 @@ import {
   UpdateProductRequest,
 } from "../types/product";
 import { ProductQuery } from "../types/common";
+import { ReviewService } from "./reviewService";
 import { v4 as uuidv4 } from "uuid";
 
 export class ProductService {
   private collection = db.collection(COLLECTIONS.PRODUCTS);
+  private reviewService = new ReviewService();
 
   async getAllProducts(query: ProductQuery = {}) {
     const {
@@ -46,6 +48,26 @@ export class ProductService {
           ...doc.data(),
         }) as Product,
     );
+
+    // Update products with review stats
+    try {
+      const reviewStatsPromises = products.map(async (product) => {
+        try {
+          const reviewStats = await this.reviewService.getProductReviewStats(product.id);
+          product.rating = reviewStats.averageRating;
+          product.reviews = reviewStats.totalReviews;
+        } catch (error) {
+          console.error(`Error getting review stats for product ${product.id}:`, error);
+          // Keep original rating and reviews if error occurs
+        }
+        return product;
+      });
+      
+      products = await Promise.all(reviewStatsPromises);
+    } catch (error) {
+      console.error("Error updating products with review stats:", error);
+      // Continue with original products if error occurs
+    }
 
     // Apply client-side filters that Firestore doesn't support well
     if (minPrice !== undefined) {
@@ -87,7 +109,20 @@ export class ProductService {
     if (!doc.exists) {
       return null;
     }
-    return { id: doc.id, ...doc.data() } as Product;
+    
+    const product = { id: doc.id, ...doc.data() } as Product;
+    
+    // Get review stats for this product
+    try {
+      const reviewStats = await this.reviewService.getProductReviewStats(id);
+      product.rating = reviewStats.averageRating;
+      product.reviews = reviewStats.totalReviews;
+    } catch (error) {
+      console.error("Error getting review stats:", error);
+      // Keep original rating and reviews if error occurs
+    }
+    
+    return product;
   }
 
   async createProduct(productData: CreateProductRequest): Promise<Product> {

@@ -7,7 +7,13 @@ export class OrderController {
 
   createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
-      const order = await this.orderService.createOrder(req.body);
+      // Add userId from authenticated user if available
+      const orderData = {
+        ...req.body,
+        userId: req.user?.id || undefined,
+      };
+      
+      const order = await this.orderService.createOrder(orderData);
 
       const response: ApiResponse<typeof order> = {
         success: true,
@@ -182,6 +188,85 @@ export class OrderController {
       const response: ApiResponse<null> = {
         success: false,
         message: "Failed to retrieve order statistics",
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+      res.status(500).json(response);
+    }
+  };
+
+  // User order history - requires authentication
+  getUserOrders = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        const response: ApiResponse<null> = {
+          success: false,
+          message: "User authentication required",
+        };
+        res.status(401).json(response);
+        return;
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const result = await this.orderService.getUserOrders(userId, page, limit);
+
+      const response: ApiResponse<typeof result> = {
+        success: true,
+        data: result,
+        message: "User orders retrieved successfully",
+      };
+
+      res.json(response);
+    } catch (error) {
+      const response: ApiResponse<null> = {
+        success: false,
+        message: "Failed to retrieve user orders",
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
+      res.status(500).json(response);
+    }
+  };
+
+  // Get single order for user - requires authentication and ownership
+  getUserOrder = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const userId = req.user?.id;
+      const { id } = req.params;
+
+      if (!userId) {
+        const response: ApiResponse<null> = {
+          success: false,
+          message: "User authentication required",
+        };
+        res.status(401).json(response);
+        return;
+      }
+
+      const order = await this.orderService.getUserOrder(userId, id);
+
+      if (!order) {
+        const response: ApiResponse<null> = {
+          success: false,
+          message: "Order not found",
+        };
+        res.status(404).json(response);
+        return;
+      }
+
+      const response: ApiResponse<typeof order> = {
+        success: true,
+        data: order,
+        message: "Order retrieved successfully",
+      };
+
+      res.json(response);
+    } catch (error) {
+      const response: ApiResponse<null> = {
+        success: false,
+        message: "Failed to retrieve order",
         error: error instanceof Error ? error.message : "Unknown error",
       };
       res.status(500).json(response);

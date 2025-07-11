@@ -8,6 +8,7 @@ export interface CartItem {
 
 export interface Order {
   id: string;
+  userId?: string; // Add user ID for authenticated orders
   items: CartItem[];
   customerInfo: {
     name: string;
@@ -29,12 +30,26 @@ export interface Order {
     | "shipped"
     | "delivered"
     | "cancelled";
+  trackingInfo?: TrackingInfo;
+  canReview?: boolean; // Can user leave reviews for this order
   createdAt: Date;
   updatedAt: Date;
   notes?: string;
 }
 
+export interface TrackingInfo {
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  timeline: TrackingEvent[];
+}
+
+export interface TrackingEvent {
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  description: string;
+  timestamp: Date;
+}
+
 export interface CreateOrderRequest {
+  userId?: string; // Optional user ID for authenticated orders
   items: CartItem[];
   customerInfo: {
     name: string;

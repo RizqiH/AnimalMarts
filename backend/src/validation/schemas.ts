@@ -49,7 +49,7 @@ export const createOrderSchema = Joi.object({
   paymentMethod: Joi.string()
     .valid("bank_transfer", "credit_card", "e_wallet", "cod")
     .required(),
-  notes: Joi.string().max(500).optional(),
+  notes: Joi.string().max(500).allow("").optional(),
 });
 
 export const updateOrderStatusSchema = Joi.object({
