@@ -53,6 +53,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (origin && origin.includes('localhost')) {
+    // Fallback untuk semua localhost
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    // Default untuk production
+    res.setHeader('Access-Control-Allow-Origin', 'https://animal-marts.vercel.app');
   }
   
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
