@@ -44,9 +44,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`${req.method} ${req.url}`);
 
   // Set CORS headers yang sesuai dengan app.ts
-  res.setHeader('Access-Control-Allow-Origin', process.env.NODE_ENV === 'production' 
-    ? 'https://animal-marts.vercel.app' 
-    : '*');
+  const allowedOrigins = [
+    'https://animal-marts.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173'
+  ];
+  
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -77,8 +85,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Set environment to production untuk Vercel
-    process.env.NODE_ENV = 'production';
+    // Environment should be set through configuration, not runtime
+    const environment = process.env.NODE_ENV || 'production';
     
     // Gunakan Express app untuk handle request
     return app(req, res);
