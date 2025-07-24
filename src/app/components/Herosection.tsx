@@ -40,7 +40,7 @@ const HeroSection = () => {
           <div className="flex justify-center animate-slide-in-right">
             <div className="relative">
               {/* Decorative rings */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 opacity-20 animate-pulse-slow"></div>
+              <div className="absolute inset-0 rounded-full bg-white opacity-20 animate-pulse-slow"></div>
               <div className="absolute inset-4 rounded-full bg-white opacity-20 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
               
               <div className="relative p-8 hover-lift">

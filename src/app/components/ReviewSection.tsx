@@ -41,6 +41,15 @@ export default function ReviewSection({ productId, orderId, canReview = false }:
   const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("Reviews state updated:", reviews);
+  }, [reviews]);
+
+  useEffect(() => {
+    console.log("ReviewStats state updated:", reviewStats);
+  }, [reviewStats]);
+
   // Fetch reviews and stats
   useEffect(() => {
     fetchReviews();
@@ -49,17 +58,30 @@ export default function ReviewSection({ productId, orderId, canReview = false }:
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}`, {
+      const url = `${API_BASE_URL}/api/reviews/product/${productId}`;
+      console.log("Fetching reviews for productId:", productId);
+      console.log("Reviews API URL:", url);
+      const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
       
+      console.log("Response status:", response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log("Review data received:", data);
         if (data.success) {
+          console.log("Setting reviews:", data.data);
           setReviews(data.data);
+        } else {
+          console.log("API returned success: false", data);
         }
+      } else {
+        console.log("Response not ok:", response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.log("Error data:", errorData);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -68,20 +90,70 @@ export default function ReviewSection({ productId, orderId, canReview = false }:
 
   const fetchReviewStats = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}/stats`, {
+      const url = `${API_BASE_URL}/api/reviews/product/${productId}/stats`;
+      console.log("Fetching review stats for productId:", productId);
+      console.log("Stats API URL:", url);
+      const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
       
+      console.log("Stats response status:", response.status);
+      
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setReviewStats(data.data);
+        console.log("Stats data received:", data);
+        console.log("Raw stats data structure:", JSON.stringify(data.data, null, 2));
+        
+        if (data.success && data.data) {
+          // Check if ratingDistribution exists in the response
+          console.log("ratingDistribution from API:", data.data.ratingDistribution);
+          
+          // Ensure ratingDistribution has all required properties with default values
+          const ratingDistribution = {
+            5: data.data.ratingDistribution?.[5] || data.data.ratingDistribution?.["5"] || 0,
+            4: data.data.ratingDistribution?.[4] || data.data.ratingDistribution?.["4"] || 0,
+            3: data.data.ratingDistribution?.[3] || data.data.ratingDistribution?.["3"] || 0,
+            2: data.data.ratingDistribution?.[2] || data.data.ratingDistribution?.["2"] || 0,
+            1: data.data.ratingDistribution?.[1] || data.data.ratingDistribution?.["1"] || 0,
+          };
+          
+          const statsToSet = {
+            averageRating: data.data.averageRating || 0,
+            totalReviews: data.data.totalReviews || 0,
+            ratingDistribution,
+          };
+          
+          console.log("Final stats to set:", statsToSet);
+          console.log("RatingDistribution processed:", ratingDistribution);
+          setReviewStats(statsToSet);
+        } else {
+          console.log("No stats data, setting defaults");
+          // Set default values if no data
+          setReviewStats({
+            averageRating: 0,
+            totalReviews: 0,
+            ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+          });
         }
+      } else {
+        console.log("Stats response not ok:", response.status, response.statusText);
+        // Set default values if response not ok
+        setReviewStats({
+          averageRating: 0,
+          totalReviews: 0,
+          ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+        });
       }
     } catch (error) {
       console.error("Error fetching review stats:", error);
+      // Set default values on error
+      setReviewStats({
+        averageRating: 0,
+        totalReviews: 0,
+        ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -145,7 +217,7 @@ export default function ReviewSection({ productId, orderId, canReview = false }:
   };
 
   const renderRatingDistribution = () => {
-    if (!reviewStats) return null;
+    if (!reviewStats || !reviewStats.ratingDistribution) return null;
 
     const total = reviewStats.totalReviews;
     if (total === 0) return null;
@@ -153,7 +225,7 @@ export default function ReviewSection({ productId, orderId, canReview = false }:
     return (
       <div className="space-y-2">
         {[5, 4, 3, 2, 1].map((rating) => {
-          const count = reviewStats.ratingDistribution[rating as keyof typeof reviewStats.ratingDistribution];
+          const count = reviewStats.ratingDistribution?.[rating as keyof typeof reviewStats.ratingDistribution] || 0;
           const percentage = total > 0 ? (count / total) * 100 : 0;
           
           return (

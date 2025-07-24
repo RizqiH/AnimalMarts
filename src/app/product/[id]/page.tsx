@@ -493,10 +493,10 @@ const ProductDetailPage: React.FC = () => {
                   <span className="font-medium text-gray-900">{product.reviews} ulasan</span>
                 </div>
               </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
       {/* Reviews Section - Completely Separate Section */}
       <div className="bg-gradient-to-br from-gray-50 to-white py-16">

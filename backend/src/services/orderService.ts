@@ -77,7 +77,7 @@ export class OrderService {
           id: doc.id,
           ...doc.data(),
         }) as Order,
-      );
+    );
 
       // Sort by createdAt in memory
       orders = orders.sort((a, b) => {
@@ -91,15 +91,15 @@ export class OrderService {
       const offset = (page - 1) * limit;
       const paginatedOrders = orders.slice(offset, offset + limit);
 
-      return {
+    return {
         orders: paginatedOrders,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
     } catch (error) {
       console.error("Error getting all orders:", error);
       return {
@@ -187,9 +187,9 @@ export class OrderService {
   async getUserOrders(userId: string, page: number = 1, limit: number = 10) {
     try {
       // Simplified query without orderBy to avoid composite index requirement
-      const snapshot = await this.collection
-        .where("userId", "==", userId)
-        .get();
+    const snapshot = await this.collection
+      .where("userId", "==", userId)
+      .get();
 
       if (snapshot.empty) {
         return {
@@ -209,7 +209,7 @@ export class OrderService {
           id: doc.id,
           ...doc.data(),
         }) as Order,
-      );
+    );
 
       // Sort by createdAt in memory
       orders = orders.sort((a, b) => {
@@ -223,15 +223,15 @@ export class OrderService {
       const offset = (page - 1) * limit;
       const paginatedOrders = orders.slice(offset, offset + limit);
 
-      return {
+    return {
         orders: paginatedOrders,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
     } catch (error) {
       console.error("Error getting user orders:", error);
       // Return empty result on error

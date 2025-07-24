@@ -69,23 +69,40 @@ export class ReviewService {
 
   async getReviewsByProduct(productId: string, limit: number = 10, offset: number = 0): Promise<ReviewWithUser[]> {
     try {
+      console.log(`Fetching reviews for productId: ${productId}, limit: ${limit}, offset: ${offset}`);
+      
+      // Use simple query first, then add orderBy after index is created
       const snapshot = await this.collection
         .where("productId", "==", productId)
-        .orderBy("createdAt", "desc")
         .limit(limit)
-        .offset(offset)
         .get();
 
-      return snapshot.docs.map(doc => {
+      console.log(`Found ${snapshot.docs.length} reviews for product ${productId}`);
+      
+      const results = snapshot.docs.map(doc => {
         const data = doc.data() as Review;
+        // Convert Firestore Timestamp to ISO string for frontend
+        const createdAt = (data.createdAt as any)?.toDate ? (data.createdAt as any).toDate().toISOString() : data.createdAt;
+        
         return {
           id: doc.id,
           rating: data.rating,
           comment: data.comment,
           userName: data.userName,
-          createdAt: data.createdAt,
+          createdAt: createdAt,
         };
       });
+
+      // Sort by createdAt desc in memory for now
+      results.sort((a, b) => {
+        // Handle Firestore Timestamp objects
+        const dateA = (a.createdAt as any)?.toDate ? (a.createdAt as any).toDate() : new Date(a.createdAt);
+        const dateB = (b.createdAt as any)?.toDate ? (b.createdAt as any).toDate() : new Date(b.createdAt);
+        return dateB.getTime() - dateA.getTime();
+      });
+
+      console.log(`Returning ${results.length} reviews`);
+      return results;
     } catch (error) {
       console.error("Error getting reviews by product:", error);
       return [];
