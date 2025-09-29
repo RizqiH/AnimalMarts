@@ -114,7 +114,7 @@ const ProductDetailPage: React.FC = () => {
 
     // Check if user is authenticated
     if (!isAuthenticated) {
-      showNotification("Silakan login terlebih dahulu untuk menambahkan produk ke keranjang", "error");
+      alert("Silakan login terlebih dahulu untuk menambahkan produk ke keranjang");
       return;
     }
 
@@ -130,9 +130,9 @@ const ProductDetailPage: React.FC = () => {
         });
       }
 
-      showNotification("Produk berhasil ditambahkan ke keranjang! 🛒", "success");
+      alert("Produk berhasil ditambahkan ke keranjang!");
     } catch (error) {
-      showNotification("Gagal menambahkan produk ke keranjang 😞", "error");
+      alert("Gagal menambahkan produk ke keranjang");
     } finally {
       setIsAddingToCart(false);
     }
