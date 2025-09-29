@@ -407,28 +407,28 @@ const Header = () => {
                   transitionDelay: isMenuAnimating ? '0ms' : '300ms'
                 }}>
                   {isAuthenticated ? (
-                    <div className="space-y-4">
-                      {/* User Info */}
-                      <div className="flex items-center space-x-4 p-5 bg-white rounded-2xl shadow-sm border border-gray-200">
-                        <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
-                          <User className="w-7 h-7 text-white" />
+                    <div className="space-y-5">
+                      {/* User Info Card */}
+                      <div className="flex items-center space-x-4 p-4 bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
+                          <User className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-base font-semibold text-gray-900 truncate">{user?.name}</p>
-                          <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+                          <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                         </div>
                       </div>
                       
-                      {/* Logout Button */}
+                      {/* Logout Button - Lebih Prominent */}
                       <button
                         onClick={() => {
                           handleLogout();
                           closeMobileMenu();
                         }}
-                        className="w-full flex items-center justify-center space-x-3 px-6 py-4 text-red-600 hover:bg-red-50 rounded-2xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:shadow-sm"
+                        className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
                       >
                         <LogOut className="w-5 h-5" />
-                        <span className="font-semibold text-lg">Logout</span>
+                        <span className="text-base">Keluar</span>
                       </button>
                     </div>
                   ) : (
