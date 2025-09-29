@@ -147,7 +147,7 @@ const Header = () => {
   }, [isMobileMenuOpen]);
 
   return (
-    <header className="shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/95">
+    <header className="shadow-sm sticky top-0 z-50 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -292,14 +292,14 @@ const Header = () => {
             className="fixed inset-0 z-50 md:hidden"
             onClick={closeMobileMenu}
           >
-            {/* Backdrop dengan Blur */}
-            <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm transition-all duration-500 ${
-              isMenuAnimating ? 'opacity-0 backdrop-blur-none' : 'opacity-100 backdrop-blur-sm'
+            {/* Backdrop */}
+            <div className={`fixed inset-0 bg-black/30 transition-all duration-500 ${
+              isMenuAnimating ? 'opacity-0' : 'opacity-100'
             }`}></div>
             
             {/* Sliding Menu - Full Width Setengah Halaman */}
             <div 
-              className={`fixed top-0 left-0 h-full w-1/2 min-w-[320px] max-w-[500px] bg-white/95 backdrop-blur-md shadow-2xl transform transition-all duration-500 ease-out ${
+              className={`fixed top-0 left-0 h-full w-1/2 min-w-[320px] max-w-[500px] bg-white shadow-2xl transform transition-all duration-500 ease-out ${
                 isMenuAnimating ? '-translate-x-full opacity-0 scale-95' : 'translate-x-0 opacity-100 scale-100'
               }`}
               onClick={(e) => e.stopPropagation()}
@@ -311,7 +311,7 @@ const Header = () => {
               }}
             >
               {/* Menu Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200/50 bg-gradient-to-r from-green-50/80 to-emerald-50/80 backdrop-blur-sm">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
                 <div className="flex items-center">
                   <div className="w-10 h-10 mr-4">
                     <img
@@ -327,22 +327,22 @@ const Header = () => {
                 </div>
                 <button
                   onClick={closeMobileMenu}
-                  className="p-3 rounded-full hover:bg-gray-200/50 transition-all duration-200 hover:scale-110"
+                  className="p-3 rounded-full hover:bg-gray-200 transition-all duration-200 hover:scale-110"
                 >
                   <X className="w-6 h-6 text-gray-600" />
                 </button>
               </div>
 
               {/* Menu Content */}
-              <div className="flex flex-col h-full bg-white/95 backdrop-blur-sm">
+              <div className="flex flex-col h-full bg-white">
                 {/* Navigation Links */}
                 <nav className="flex flex-col p-6 space-y-3 flex-1">
                   <Link
                     href="/"
                     className={`flex items-center px-6 py-4 rounded-xl transition-all duration-300 ${
                       pathname === "/" 
-                        ? "bg-green-100/80 text-green-700 font-semibold border-l-4 border-green-500 shadow-sm" 
-                        : "text-gray-700 hover:bg-gray-100/50 hover:text-green-600"
+                        ? "bg-green-100 text-green-700 font-semibold border-l-4 border-green-500 shadow-sm" 
+                        : "text-gray-700 hover:bg-gray-100 hover:text-green-600"
                     } ${
                       isMenuAnimating ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                     }`}
@@ -351,7 +351,6 @@ const Header = () => {
                     }}
                     onClick={closeMobileMenu}
                   >
-                    <span className="text-xl">🏠</span>
                     <span className="ml-4 text-lg">Beranda</span>
                   </Link>
                   <button
@@ -359,14 +358,13 @@ const Header = () => {
                       handleProductClick();
                       closeMobileMenu();
                     }}
-                    className={`flex items-center px-6 py-4 rounded-xl text-left text-gray-700 hover:bg-gray-100/50 hover:text-green-600 transition-all duration-300 ${
+                    className={`flex items-center px-6 py-4 rounded-xl text-left text-gray-700 hover:bg-gray-100 hover:text-green-600 transition-all duration-300 ${
                       isMenuAnimating ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                     }`}
                     style={{
                       transitionDelay: isMenuAnimating ? '0ms' : '150ms'
                     }}
                   >
-                    <span className="text-xl">📦</span>
                     <span className="ml-4 text-lg">Produk</span>
                   </button>
                   <button
@@ -374,22 +372,21 @@ const Header = () => {
                       handleCategoryClick();
                       closeMobileMenu();
                     }}
-                    className={`flex items-center px-6 py-4 rounded-xl text-left text-gray-700 hover:bg-gray-100/50 hover:text-green-600 transition-all duration-300 ${
+                    className={`flex items-center px-6 py-4 rounded-xl text-left text-gray-700 hover:bg-gray-100 hover:text-green-600 transition-all duration-300 ${
                       isMenuAnimating ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                     }`}
                     style={{
                       transitionDelay: isMenuAnimating ? '0ms' : '200ms'
                     }}
                   >
-                    <span className="text-xl">🏷️</span>
                     <span className="ml-4 text-lg">Kategori</span>
                   </button>
                   <Link
                     href="/pesanan"
                     className={`flex items-center px-6 py-4 rounded-xl transition-all duration-300 ${
                       pathname === "/pesanan" 
-                        ? "bg-green-100/80 text-green-700 font-semibold border-l-4 border-green-500 shadow-sm" 
-                        : "text-gray-700 hover:bg-gray-100/50 hover:text-green-600"
+                        ? "bg-green-100 text-green-700 font-semibold border-l-4 border-green-500 shadow-sm" 
+                        : "text-gray-700 hover:bg-gray-100 hover:text-green-600"
                     } ${
                       isMenuAnimating ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                     }`}
@@ -398,13 +395,12 @@ const Header = () => {
                     }}
                     onClick={closeMobileMenu}
                   >
-                    <span className="text-xl">📋</span>
                     <span className="ml-4 text-lg">Pesanan</span>
                   </Link>
                 </nav>
 
                 {/* Auth Section */}
-                <div className={`mt-auto p-6 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/80 to-green-50/80 backdrop-blur-sm transition-all duration-300 ${
+                <div className={`mt-auto p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-green-50 transition-all duration-300 ${
                   isMenuAnimating ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'
                 }`}
                 style={{
@@ -413,7 +409,7 @@ const Header = () => {
                   {isAuthenticated ? (
                     <div className="space-y-4">
                       {/* User Info */}
-                      <div className="flex items-center space-x-4 p-5 bg-white/80 rounded-2xl shadow-sm border border-gray-200/50 backdrop-blur-sm">
+                      <div className="flex items-center space-x-4 p-5 bg-white rounded-2xl shadow-sm border border-gray-200">
                         <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
                           <User className="w-7 h-7 text-white" />
                         </div>
@@ -429,7 +425,7 @@ const Header = () => {
                           handleLogout();
                           closeMobileMenu();
                         }}
-                        className="w-full flex items-center justify-center space-x-3 px-6 py-4 text-red-600 hover:bg-red-50/80 rounded-2xl transition-all duration-200 border border-red-200/50 hover:border-red-300 hover:shadow-sm backdrop-blur-sm"
+                        className="w-full flex items-center justify-center space-x-3 px-6 py-4 text-red-600 hover:bg-red-50 rounded-2xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:shadow-sm"
                       >
                         <LogOut className="w-5 h-5" />
                         <span className="font-semibold text-lg">Logout</span>
@@ -439,10 +435,9 @@ const Header = () => {
                     <div className="space-y-4">
                       <Link
                         href="/login"
-                        className="w-full flex items-center justify-center space-x-3 px-6 py-4 text-gray-700 hover:text-green-600 font-semibold transition-all duration-200 border border-gray-300/50 rounded-2xl hover:border-green-300 hover:bg-green-50/80 backdrop-blur-sm text-lg"
+                        className="w-full flex items-center justify-center space-x-3 px-6 py-4 text-gray-700 hover:text-green-600 font-semibold transition-all duration-200 border border-gray-300 rounded-2xl hover:border-green-300 hover:bg-green-50 text-lg"
                         onClick={closeMobileMenu}
                       >
-                        <span className="text-xl">🔑</span>
                         <span>Masuk</span>
                       </Link>
                       <Link
@@ -450,7 +445,6 @@ const Header = () => {
                         className="w-full flex items-center justify-center space-x-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4 rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 hover:shadow-lg transform hover:scale-105 text-lg"
                         onClick={closeMobileMenu}
                       >
-                        <span className="text-xl">✍️</span>
                         <span>Daftar</span>
                       </Link>
                     </div>
