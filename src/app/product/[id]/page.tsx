@@ -24,6 +24,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import ReviewSection from "../../components/ReviewSection";
 
 // Types sesuai dengan backend
@@ -55,6 +56,7 @@ const ProductDetailPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,6 +111,12 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (!product) return;
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      showNotification("Silakan login terlebih dahulu untuk menambahkan produk ke keranjang", "error");
+      return;
+    }
 
     setIsAddingToCart(true);
     try {
