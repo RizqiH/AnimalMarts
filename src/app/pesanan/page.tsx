@@ -653,7 +653,9 @@ const OrdersPage: React.FC = () => {
           <div className="card-base p-4 sm:p-6 animate-scale-in stagger-delay-4 hover-lift group">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">Total Revenue</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">
+                  {isAdmin ? "Total Revenue" : "Total Pengeluaran"}
+                </p>
                 <p className="text-lg sm:text-2xl font-bold text-green-600 truncate">{formatPrice(stats.totalRevenue)}</p>
                 <p className="text-xs sm:text-sm text-green-500 font-medium truncate">+{stats.delivered} selesai</p>
               </div>
