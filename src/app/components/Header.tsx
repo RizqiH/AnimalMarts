@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShoppingCart, User, LogOut, Menu, X } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -14,6 +14,8 @@ const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMenuAnimating, setIsMenuAnimating] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -89,7 +91,6 @@ const Header = () => {
       closeMobileMenu();
     } else {
       setIsMobileMenuOpen(true);
-      setIsMenuAnimating(true);
       // Trigger animation after component mounts
       setTimeout(() => {
         setIsMenuAnimating(false);
@@ -104,6 +105,46 @@ const Header = () => {
       setIsMenuAnimating(false);
     }, 300);
   };
+
+  // Handle swipe gesture
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+
+    if (isLeftSwipe && isMobileMenuOpen) {
+      closeMobileMenu();
+    }
+  };
+
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isMobileMenuOpen) {
+        closeMobileMenu();
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      window.history.pushState({ mobileMenu: true }, '');
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <header className="shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/95">
@@ -249,21 +290,27 @@ const Header = () => {
               isMenuAnimating ? 'opacity-0' : 'opacity-50'
             }`}></div>
             
-            {/* Sliding Menu - dari kanan ke kiri */}
+            {/* Sliding Menu - dari kiri ke kanan */}
             <div 
-              className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-white shadow-2xl transform transition-all duration-300 ease-in-out ${
-                isMenuAnimating ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'
+              className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] sm:w-96 sm:max-w-[90vw] bg-white shadow-2xl transform transition-all duration-300 ease-out ${
+                isMenuAnimating ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'
               }`}
               onClick={(e) => e.stopPropagation()}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              style={{
+                willChange: 'transform, opacity'
+              }}
             >
               {/* Menu Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 mr-2">
+                  <div className="w-8 h-8 mr-3">
                     <img
                       src="../assets/image/logo.jpg"
                       alt="AnimalMart Logo"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain rounded-full"
                     />
                   </div>
                   <h2 className="text-lg font-bold">
@@ -273,66 +320,74 @@ const Header = () => {
                 </div>
                 <button
                   onClick={closeMobileMenu}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                 >
-                  <X className="w-6 h-6 text-gray-600" />
+                  <X className="w-5 h-5 text-gray-600" />
                 </button>
               </div>
 
               {/* Menu Content */}
               <div className="flex flex-col h-full bg-white">
                 {/* Navigation Links */}
-                <nav className="flex flex-col p-6 space-y-4 flex-1">
+                <nav className="flex flex-col p-4 space-y-2 flex-1">
                   <Link
                     href="/"
-                    className={`text-gray-700 hover:text-green-600 transition-colors py-2 ${
-                      pathname === "/" ? "text-green-600 font-medium" : ""
+                    className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
+                      pathname === "/" 
+                        ? "bg-green-100 text-green-700 font-medium border-l-4 border-green-500" 
+                        : "text-gray-700 hover:bg-gray-100 hover:text-green-600"
                     }`}
                     onClick={closeMobileMenu}
                   >
-                    Beranda
+                    <span className="text-base">🏠</span>
+                    <span className="ml-3">Beranda</span>
                   </Link>
                   <button
                     onClick={() => {
                       handleProductClick();
                       closeMobileMenu();
                     }}
-                    className="text-left text-gray-700 hover:text-green-600 transition-colors py-2"
+                    className="flex items-center px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 hover:text-green-600 transition-all duration-200"
                   >
-                    Produk
+                    <span className="text-base">📦</span>
+                    <span className="ml-3">Produk</span>
                   </button>
                   <button
                     onClick={() => {
                       handleCategoryClick();
                       closeMobileMenu();
                     }}
-                    className="text-left text-gray-700 hover:text-green-600 transition-colors py-2"
+                    className="flex items-center px-4 py-3 rounded-lg text-left text-gray-700 hover:bg-gray-100 hover:text-green-600 transition-all duration-200"
                   >
-                    Kategori
+                    <span className="text-base">🏷️</span>
+                    <span className="ml-3">Kategori</span>
                   </button>
                   <Link
                     href="/pesanan"
-                    className={`text-gray-700 hover:text-green-600 transition-colors py-2 ${
-                      pathname === "/pesanan" ? "text-green-600 font-medium" : ""
+                    className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
+                      pathname === "/pesanan" 
+                        ? "bg-green-100 text-green-700 font-medium border-l-4 border-green-500" 
+                        : "text-gray-700 hover:bg-gray-100 hover:text-green-600"
                     }`}
                     onClick={closeMobileMenu}
                   >
-                    Pesanan
+                    <span className="text-base">📋</span>
+                    <span className="ml-3">Pesanan</span>
                   </Link>
                 </nav>
 
                 {/* Auth Section */}
-                <div className="mt-auto p-6 border-t border-gray-200 bg-gray-50">
+                <div className="mt-auto p-4 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-green-50">
                   {isAuthenticated ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {/* User Info */}
-                      <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-white" />
+                      <div className="flex items-center space-x-3 p-4 bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                          <User className="w-6 h-6 text-white" />
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                          <p className="text-xs text-gray-500">{user?.email}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                         </div>
                       </div>
                       
@@ -342,7 +397,7 @@ const Header = () => {
                           handleLogout();
                           closeMobileMenu();
                         }}
-                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300 hover:shadow-sm"
                       >
                         <LogOut className="w-4 h-4" />
                         <span className="font-medium">Logout</span>
@@ -352,17 +407,19 @@ const Header = () => {
                     <div className="space-y-3">
                       <Link
                         href="/login"
-                        className="w-full block text-center px-4 py-3 text-gray-700 hover:text-green-600 font-medium transition-colors border border-gray-300 rounded-lg hover:border-green-300"
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-gray-700 hover:text-green-600 font-medium transition-all duration-200 border border-gray-300 rounded-xl hover:border-green-300 hover:bg-green-50"
                         onClick={closeMobileMenu}
                       >
-                        Masuk
+                        <span className="text-base">🔑</span>
+                        <span>Masuk</span>
                       </Link>
                       <Link
                         href="/register"
-                        className="w-full block text-center bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-200"
+                        className="w-full flex items-center justify-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 rounded-xl font-medium hover:from-green-600 hover:to-emerald-600 transition-all duration-200 hover:shadow-lg transform hover:scale-105"
                         onClick={closeMobileMenu}
                       >
-                        Daftar
+                        <span className="text-base">✍️</span>
+                        <span>Daftar</span>
                       </Link>
                     </div>
                   )}
