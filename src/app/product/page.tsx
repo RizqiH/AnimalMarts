@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ShoppingCart, Star, Plus, X, Upload, Trash2 } from "lucide-react";
+import { ShoppingCart, Star, Plus, X, Upload, Trash2, Search } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 interface Product {
   id: string;
@@ -27,6 +28,7 @@ interface FormData {
 const Product = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("terbaru");
+  const [searchTerm, setSearchTerm] = useState("");
   const [favorites, setFavorites] = useState(new Set<string>());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,8 +36,9 @@ const Product = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
 
-  // Use cart context
+  // Use cart and auth context
   const { addToCart } = useCart();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -135,6 +138,12 @@ const Product = () => {
 
   // Updated addToCart function to use context instead of API
   const handleAddToCart = async (product: Product): Promise<void> => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      alert("Silakan login terlebih dahulu untuk menambahkan produk ke keranjang");
+      return;
+    }
+
     try {
       // Use the cart context to add product
       addToCart({
@@ -293,8 +302,17 @@ const Product = () => {
   };
 
   const filteredProducts: Product[] = products.filter(
-    (product) =>
-      selectedCategory === "" || product.category === selectedCategory,
+    (product) => {
+      // Filter by category
+      const categoryMatch = selectedCategory === "" || product.category === selectedCategory;
+      
+      // Filter by search term
+      const searchMatch = searchTerm === "" || 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return categoryMatch && searchMatch;
+    }
   );
 
   const sortedProducts: Product[] = [...filteredProducts].sort((a, b) => {
@@ -332,22 +350,26 @@ const Product = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">
-            Semua Produk ({products.length})
+            Semua Produk ({filteredProducts.length})
           </h2>
           <div className="flex gap-3">
-            <button
-              onClick={fetchProducts}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              Refresh
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              Tambah Produk
-            </button>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={fetchProducts}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Refresh
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  Tambah Produk
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -386,7 +408,7 @@ const Product = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Urutkan
               </h3>
@@ -411,6 +433,24 @@ const Product = () => {
                 ))}
               </div>
             </div>
+
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Cari Produk
+              </h3>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Cari berdasarkan nama atau kategori..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm text-black"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Products Grid */}
@@ -418,8 +458,18 @@ const Product = () => {
             {sortedProducts.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">
-                  {isLoading ? "Memuat produk..." : "Tidak ada produk ditemukan"}
+                  {isLoading ? "Memuat produk..." : 
+                   searchTerm ? `Tidak ada produk yang cocok dengan "${searchTerm}"` : 
+                   "Tidak ada produk ditemukan"}
                 </p>
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="mt-4 text-green-600 hover:text-green-700 font-medium"
+                  >
+                    Hapus filter pencarian
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -435,22 +485,24 @@ const Product = () => {
                         </div>
                       )}
                       
-                      {/* Action buttons container */}
-                      <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-                        {/* Delete button */}
-                        <button
-                          onClick={() => handleDeleteProduct(product.id)}
-                          disabled={deletingProductId === product.id}
-                          className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Hapus produk"
-                        >
-                          {deletingProductId === product.id ? (
-                            <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
-                          )}
-                        </button>
-                      </div>
+                      {/* Action buttons container - Only show for admin */}
+                      {isAdmin && (
+                        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+                          {/* Delete button */}
+                          <button
+                            onClick={() => handleDeleteProduct(product.id)}
+                            disabled={deletingProductId === product.id}
+                            className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Hapus produk"
+                          >
+                            {deletingProductId === product.id ? (
+                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-600" />
+                            )}
+                          </button>
+                        </div>
+                      )}
                       
                       <div className="h-48 flex items-center justify-center">
                         <img
