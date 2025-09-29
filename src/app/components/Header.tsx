@@ -86,13 +86,14 @@ const Header = () => {
 
   const toggleMobileMenu = () => {
     if (isMobileMenuOpen) {
-      setIsMenuAnimating(true);
-      setTimeout(() => {
-        setIsMobileMenuOpen(false);
-        setIsMenuAnimating(false);
-      }, 300);
+      closeMobileMenu();
     } else {
       setIsMobileMenuOpen(true);
+      setIsMenuAnimating(true);
+      // Trigger animation after component mounts
+      setTimeout(() => {
+        setIsMenuAnimating(false);
+      }, 10);
     }
   };
 
@@ -245,18 +246,18 @@ const Header = () => {
           >
             {/* Backdrop */}
             <div className={`fixed inset-0 bg-black transition-opacity duration-300 ${
-              isMenuAnimating ? 'bg-opacity-0' : 'bg-opacity-50'
+              isMenuAnimating ? 'opacity-0' : 'opacity-50'
             }`}></div>
             
-            {/* Sliding Menu */}
+            {/* Sliding Menu - dari kanan ke kiri */}
             <div 
-              className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                isMenuAnimating ? 'translate-x-full' : 'translate-x-0'
+              className={`fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-white shadow-2xl transform transition-all duration-300 ease-in-out ${
+                isMenuAnimating ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Menu Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
                 <div className="flex items-center">
                   <div className="w-8 h-8 mr-2">
                     <img
@@ -279,9 +280,9 @@ const Header = () => {
               </div>
 
               {/* Menu Content */}
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col h-full bg-white">
                 {/* Navigation Links */}
-                <nav className="flex flex-col p-4 space-y-4">
+                <nav className="flex flex-col p-6 space-y-4 flex-1">
                   <Link
                     href="/"
                     className={`text-gray-700 hover:text-green-600 transition-colors py-2 ${
@@ -321,7 +322,7 @@ const Header = () => {
                 </nav>
 
                 {/* Auth Section */}
-                <div className="mt-auto p-4 border-t border-gray-200">
+                <div className="mt-auto p-6 border-t border-gray-200 bg-gray-50">
                   {isAuthenticated ? (
                     <div className="space-y-4">
                       {/* User Info */}
